@@ -1,27 +1,20 @@
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+
 use crate::Move::*;
 
 fn main() {
-    let input = std::fs::read_to_string("../day02.txt")
-        .unwrap()
+    let (x, y1, y2) = BufReader::new(File::open("../day02.txt").unwrap())
         .lines()
-        .map(|x| x.parse::<Move>().unwrap())
-        .collect::<Vec<_>>();
+        .map(|line| line.unwrap().parse::<Move>().unwrap())
+        .fold((0, 0, 0), |(x, y1, y2), n| match n {
+            Forward(n) => (x + n as i64, y1, y2 + y1 * n as i64),
+            Down(n) => (x, y1 + n as i64, y2),
+            Up(n) => (x, y1 - n as i64, y2),
+        });
 
-    let (x, y) = input.iter().fold((0, 0), |(x, y), &n| match n {
-        Forward(n) => (x + n as i64, y),
-        Down(n) => (x, y + n as i64),
-        Up(n) => (x, y - n as i64),
-    });
-
-    println!("Part 1: {}", x * y);
-
-    let (x, y, _) = input.iter().fold((0, 0, 0), |(x, y, aim), &n| match n {
-        Forward(n) => (x + n as i64, y + aim * n as i64, aim),
-        Down(n) => (x, y, aim + n as i64),
-        Up(n) => (x, y, aim - n as i64),
-    });
-
-    println!("Part 2: {}", x * y);
+    println!("Part 1: {}", x * y1);
+    println!("Part 2: {}", x * y2);
 }
 
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
