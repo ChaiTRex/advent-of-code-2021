@@ -25,26 +25,20 @@ pub enum Move {
 }
 
 impl core::str::FromStr for Move {
-    type Err = String;
+    type Err = &'static str;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.starts_with("forward ") {
-            s[8..]
-                .parse::<u32>()
-                .map(Forward)
-                .map_err(|err| format!("{:?}", err))
-        } else if s.starts_with("down ") {
-            s[5..]
-                .parse::<u32>()
-                .map(Down)
-                .map_err(|err| format!("{:?}", err))
-        } else if s.starts_with("up ") {
-            s[3..]
-                .parse::<u32>()
-                .map(Up)
-                .map_err(|err| format!("{:?}", err))
-        } else {
-            Err("Doesn't start with \"forward \", \"down \", or \"up \"".to_owned())
-        }
+        let (command, amount) = s
+            .split_once(' ')
+            .ok_or("Missing a space between command and amount")?;
+        let amount = amount
+            .parse::<u32>()
+            .map_err(|_| "Amount is an invalid number")?;
+        Ok(match command {
+            "forward" => Forward(amount),
+            "down" => Down(amount),
+            "up" => Up(amount),
+            _ => return Err("Invalid command"),
+        })
     }
 }
