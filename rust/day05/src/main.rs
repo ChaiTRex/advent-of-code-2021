@@ -7,7 +7,7 @@ fn main() {
         .map(|line| line.parse::<Line>().unwrap())
         .collect::<Vec<_>>();
 
-    let mut locations: HashMap<(u16, u16), usize> = HashMap::new();
+    let mut locations_seen_twice: HashMap<(u16, u16), bool> = HashMap::new();
 
     let part_1 = {
         for line in input.iter() {
@@ -16,35 +16,38 @@ fn main() {
                 let mut ys = [line.y_1, line.y_2];
                 ys.as_mut_slice().sort_unstable();
                 for y in ys[0]..=ys[1] {
-                    locations
+                    locations_seen_twice
                         .entry((x, y))
-                        .and_modify(|count| *count += 1)
-                        .or_insert(1);
+                        .and_modify(|seen_twice| *seen_twice = true)
+                        .or_insert(false);
                 }
             } else if line.y_1 == line.y_2 {
                 let y = line.y_1;
                 let mut xs = [line.x_1, line.x_2];
                 xs.as_mut_slice().sort_unstable();
                 for x in xs[0]..=xs[1] {
-                    locations
+                    locations_seen_twice
                         .entry((x, y))
-                        .and_modify(|count| *count += 1)
-                        .or_insert(1);
+                        .and_modify(|seen_twice| *seen_twice = true)
+                        .or_insert(false);
                 }
             }
         }
 
-        locations.values().filter(|&&count| count >= 2).count()
+        locations_seen_twice
+            .values()
+            .filter(|&&seen_twice| seen_twice)
+            .count()
     };
     println!("Part 1: {}", part_1);
 
     let part_2 = {
         for line in input.iter() {
-            let increment_count = |location| {
-                locations
+            let mark_seen = |location| {
+                locations_seen_twice
                     .entry(location)
-                    .and_modify(|count| *count += 1)
-                    .or_insert(1);
+                    .and_modify(|seen_twice| *seen_twice = true)
+                    .or_insert(false);
             };
 
             if line.x_1 != line.x_2 && line.y_1 != line.y_2 {
@@ -52,25 +55,28 @@ fn main() {
                     if line.y_1 < line.y_2 {
                         (line.x_1..=line.x_2)
                             .zip(line.y_1..=line.y_2)
-                            .for_each(increment_count);
+                            .for_each(mark_seen);
                     } else {
                         (line.x_1..=line.x_2)
                             .zip((line.y_2..=line.y_1).rev())
-                            .for_each(increment_count);
+                            .for_each(mark_seen);
                     }
                 } else if line.y_1 < line.y_2 {
                     ((line.x_2..=line.x_1).rev())
                         .zip(line.y_1..=line.y_2)
-                        .for_each(increment_count);
+                        .for_each(mark_seen);
                 } else {
                     ((line.x_2..=line.x_1).rev())
                         .zip((line.y_2..=line.y_1).rev())
-                        .for_each(increment_count);
+                        .for_each(mark_seen);
                 }
             }
         }
 
-        locations.into_values().filter(|&count| count >= 2).count()
+        locations_seen_twice
+            .into_values()
+            .filter(|&seen_twice| seen_twice)
+            .count()
     };
     println!("Part 2: {}", part_2);
 }
