@@ -5,7 +5,7 @@ fn main() {
     let input = std::fs::read_to_string("../day14.txt").unwrap();
     let mut input = input.lines();
     
-    let mut polymer = HashMap::<(u8, u8), usize>::new();
+    let mut polymer = HashMap::<(u8, u8), u64>::new();
     let polymer_template = input.next().unwrap();
     let last_element = polymer_template.as_bytes()[polymer_template.len() - 1];
     polymer_template
@@ -50,7 +50,7 @@ fn main() {
     println!("Part 2: {}", counts.last().unwrap() - counts.first().unwrap());
 }
 
-fn apply_rules(polymer: HashMap<(u8, u8), usize>, insertion_rules: &HashMap<(u8, u8), [(u8, u8); 2]>) -> HashMap<(u8, u8), usize> {
+fn apply_rules(polymer: HashMap<(u8, u8), u64>, insertion_rules: &HashMap<(u8, u8), [(u8, u8); 2]>) -> HashMap<(u8, u8), u64> {
     polymer.into_iter()
         .flat_map(|(xs, count)| {
             let &[ys, zs] = insertion_rules.get(&xs).unwrap();
