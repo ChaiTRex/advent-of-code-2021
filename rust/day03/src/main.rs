@@ -27,56 +27,39 @@ fn main() {
         input
     };
 
-    let mut one_bit_counts = [0; 12];
-    for n in input.iter() {
-        for (i, count) in (0..12).rev().zip(one_bit_counts.iter_mut()) {
-            *count += ((n >> i) & 1) as usize;
+    let result = {
+        let mut one_bit_counts = [0; 12];
+        for n in input.iter() {
+            for (i, count) in (0..12).rev().zip(one_bit_counts.iter_mut()) {
+                *count += ((n >> i) & 1) as usize;
+            }
         }
-    }
 
-    let result = one_bit_counts.iter().fold(0, |result, n| {
-        (result << 1) | ((n << 1) > input.len()) as u32
-    });
+        one_bit_counts.into_iter().fold(0, |result, n| {
+            (result << 1) | ((n << 1) > input.len()) as u32
+        })
+    };
 
     println!("Part 1: {}", result * (result ^ 0b1111_1111_1111));
 
-    let oxy = {
-        let mut input = input.clone();
+    fn get_rating(input: &mut Vec<u16>, f: fn(&usize, &usize) -> bool) -> u32 {
+        for i in (0..12).rev() {
+            let one_bit_count = input.iter().map(|n| ((n >> i) & 1) as usize).sum::<usize>();
+            let to_keep = f(&(one_bit_count << 1), &input.len()) as u16;
 
-        for bit_position in (0..12).rev() {
-            let one_bit_count = input
-                .iter()
-                .map(|&n| ((n >> bit_position) & 1) as usize)
-                .sum::<usize>();
-            let to_keep = ((one_bit_count << 1) >= input.len()) as u16;
-
-            input.retain(|n| (n >> bit_position) & 1 == to_keep);
+            input.retain(|n| (n >> i) & 1 == to_keep);
             if input.len() == 1 {
                 break;
             }
         }
 
         input.pop().unwrap() as u32
-    };
+    }
 
-    let co2 = {
-        let mut input = input;
+    let mut input = input;
 
-        for bit_position in (0..12).rev() {
-            let one_bit_count = input
-                .iter()
-                .map(|&n| ((n >> bit_position) & 1) as usize)
-                .sum::<usize>();
-            let to_keep = ((one_bit_count << 1) < input.len()) as u16;
-
-            input.retain(|n| (n >> bit_position) & 1 == to_keep);
-            if input.len() == 1 {
-                break;
-            }
-        }
-
-        input.pop().unwrap() as u32
-    };
+    let oxy = get_rating(&mut input.clone(), usize::ge);
+    let co2 = get_rating(&mut input, usize::lt);
 
     println!("Part 2: {}", oxy * co2);
 }
