@@ -35,8 +35,9 @@ fn main() {
             }
         }
 
-        one_bit_counts.into_iter().fold(0, |result, n| {
-            (result << 1) | ((n << 1) > input.len()) as u32
+        one_bit_counts.into_iter().fold(0, |result, one_bit_count| {
+            let zero_bit_count = input.len() - one_bit_count;
+            (result << 1) | (one_bit_count > zero_bit_count) as u32
         })
     };
 
@@ -45,7 +46,8 @@ fn main() {
     fn get_rating(input: &mut Vec<u16>, f: fn(&usize, &usize) -> bool) -> u32 {
         for i in (0..12).rev() {
             let one_bit_count = input.iter().map(|n| ((n >> i) & 1) as usize).sum::<usize>();
-            let to_keep = f(&(one_bit_count << 1), &input.len()) as u16;
+            let zero_bit_count = input.len() - one_bit_count;
+            let to_keep = f(&one_bit_count, &zero_bit_count) as u16;
 
             input.retain(|n| (n >> i) & 1 == to_keep);
             if input.len() == 1 {
