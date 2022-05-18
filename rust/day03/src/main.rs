@@ -16,6 +16,10 @@ type LineSum = u32;
 type LineValue = u16;
 
 fn main() {
+    if BITS_PER_LINE < 1 {
+        panic!("Programming error: `BITS_PER_LINE` must be at least 1");
+    }
+
     let input = {
         let mut input = Vec::with_capacity(LINE_COUNT);
 
