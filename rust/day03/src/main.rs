@@ -73,12 +73,17 @@ fn main() {
 
             let bit_to_keep = (f(&one_bit_count, &zero_bit_count) as LineValue) << bit_index;
             input.retain(|&n| n & mask_for_this_bit == bit_to_keep);
+
             if input.len() == 1 {
-                break;
+                return input.pop().unwrap() as DoubleLineValue;
             }
         }
 
-        input.pop().unwrap() as DoubleLineValue
+        match input.len() {
+            0 => panic!("Error in part 2: No values remaining after reducing values"),
+            1 => unreachable!(),
+            _ => panic!("Error in part 2: More than one value remaining after reducing values"),
+        }
     }
 
     let mut input = input;
