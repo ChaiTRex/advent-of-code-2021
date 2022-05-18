@@ -6,10 +6,13 @@ const BITS_PER_LINE: usize = 12;
 const LINE_BITMASK: DoubleLineValue = (1 << BITS_PER_LINE) - 1;
 
 // Enough bits to hold two LineValues multiplied together
+// Bits needed: BITS_PER_LINE * 2
 type DoubleLineValue = u32;
 // Enough bits to hold the highest possible power-of-two LineValue times LINE_COUNT
+// Bits needed: BITS_PER_LINE + LINE_COUNT.log2() + 1
 type LineSum = u32;
 // Enough bits to hold a value on a line in the input file
+// Bits needed: BITS_PER_LINE
 type LineValue = u16;
 
 fn main() {
